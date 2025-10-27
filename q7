@@ -1,0 +1,104 @@
+#include <iostream>
+#include <cstdlib>
+using namespace std;
+
+int comparisons = 0;
+void swap(int &a, int &b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
+
+int partition_first(int arr[], int low, int high) {
+    int pivot = arr[low];
+    int i = low + 1;
+    for (int j = low + 1; j <= high; j++) {
+        comparisons++;
+        if (arr[j] < pivot) {
+            swap(arr[i], arr[j]);
+            i++;
+        }
+    }
+    swap(arr[low], arr[i - 1]);
+    return i - 1;
+}
+
+int partition_middle(int arr[], int low, int high) {
+    int mid = (low + high) / 2;
+    swap(arr[low], arr[mid]);
+    return partition_first(arr, low, high);
+}
+
+int partition_random(int arr[], int low, int high) {
+   int pivotIndex = low + rand() % (high - low + 1);
+    swap(arr[low], arr[pivotIndex]);
+    return partition_first(arr, low, high);
+}
+
+int medianOfThree(int a, int b, int c) {
+    if ((a > b && a < c) || (a < b && a > c)) return a;
+    if ((b > a && b < c) || (b < a && b > c)) return b;
+    return c;
+}
+
+int partition_median(int arr[], int low, int high) {
+    int mid = (low + high) / 2;
+    int median = medianOfThree(arr[low], arr[mid], arr[high]);
+    if (median == arr[mid]) swap(arr[low], arr[mid]);
+    else if (median == arr[high]) swap(arr[low], arr[high]);
+    return partition_first(arr, low, high);
+}
+
+void quickSort(int arr[], int low, int high, int pivotType) {
+    if (low < high) {
+        int pi;
+        if (pivotType == 1) pi = partition_first(arr, low, high);
+        else if (pivotType == 2) pi = partition_random(arr, low, high);
+        else if (pivotType == 3) pi = partition_middle(arr, low, high);
+        else pi = partition_median(arr, low, high);
+        quickSort(arr, low, pi - 1, pivotType);
+        quickSort(arr, pi + 1, high, pivotType);
+    }
+}
+
+void printArray(int arr[], int size) {
+    for (int i = 0; i < size; i++)
+        cout << arr[i] << " ";
+    cout << endl;
+}
+
+void copyArray(int src[], int dest[], int n) {
+    for (int i = 0; i < n; i++)
+        dest[i] = src[i];
+}
+
+int main() {
+    int arr[] = {10, 7, 8, 9, 1, 5, 3};
+    int n = 7;
+    int a1[7], a2[7], a3[7], a4[7];
+    copyArray(arr, a1, n);
+    copyArray(arr, a2, n);
+    copyArray(arr, a3, n);
+    copyArray(arr, a4, n);
+    comparisons = 0;
+    quickSort(a1, 0, n - 1, 1);
+    cout << "Sorted using FIRST element pivot: ";
+    printArray(a1, n);
+    cout << "Comparisons: " << comparisons << endl << endl;
+    comparisons = 0;
+    quickSort(a2, 0, n - 1, 2);
+    cout << "Sorted using RANDOM element pivot: ";
+    printArray(a2, n);
+    cout << "Comparisons: " << comparisons << endl << endl;
+    comparisons = 0;
+    quickSort(a3, 0, n - 1, 3);
+    cout << "Sorted using MIDDLE element pivot: ";
+    printArray(a3, n);
+    cout << "Comparisons: " << comparisons << endl << endl;
+    comparisons = 0;
+    quickSort(a4, 0, n - 1, 4);
+    cout << "Sorted using MEDIAN OF THREE pivot: ";
+    printArray(a4, n);
+    cout << "Comparisons: " << comparisons << endl << endl;
+    return 0;
+}
