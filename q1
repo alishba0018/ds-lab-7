@@ -1,0 +1,171 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Student {
+    string name;
+    int score;
+    Student* next;
+};
+
+void addNode(Student*& head, const string& name, int score) {
+    Student* newNode = new Student{name, score, NULL};
+    if (!head) {
+        head = newNode;
+        return;
+    }
+    Student* temp = head;
+    while (temp->next) temp = temp->next;
+    temp->next = newNode;
+}
+
+int getMaxScore(Student* head) {
+    int maxVal = 0;
+    while (head) {
+        if (head->score > maxVal)
+            maxVal = head->score;
+        head = head->next;
+    }
+    return maxVal;
+}
+
+int countNodes(Student* head) {
+    int count = 0;
+    while (head) {
+        count++;
+        head = head->next;
+    }
+    return count;
+}
+
+Student* getNodeAt(Student* head, int index) {
+    int i = 0;
+    while (head && i < index) {
+        head = head->next;
+        i++;
+    }
+    return head;
+}
+
+int compareStudents(const string& name1, int score1, const string& name2, int score2) {
+    if (score1 < score2) return -1;
+    else if (score1 > score2) return 1;
+    else {
+        if (name1 < name2) return -1;
+        else if (name1 > name2) return 1;
+        else return 0;
+    }
+}
+
+Student* binarySearchLinkedList(Student* head, const string& name, int score, int start, int end) {
+    while (start <= end) {
+        int mid = start + (end - start) / 2;
+        Student* midNode = getNodeAt(head, mid);
+        int cmp = compareStudents(midNode->name, midNode->score, name, score);
+        if (cmp == 0) {
+            return midNode;
+        } else if (cmp < 0) {
+            start = mid + 1;
+        } else {
+            end = mid - 1;
+        }
+    }
+    return NULL;
+}
+
+void countSort(Student*& head, int exp) {
+    Student* buckets[10] = {NULL};
+    Student* tails[10] = {NULL};
+
+    Student* curr = head;
+    while (curr) {
+        int digit = (curr->score / exp) % 10;
+        Student* nextNode = curr->next;
+        curr->next = NULL;
+
+        if (!buckets[digit]) {
+            buckets[digit] = tails[digit] = curr;
+        } else {
+            tails[digit]->next = curr;
+            tails[digit] = curr;
+        }
+        curr = nextNode;
+    }
+    Student* newHead = NULL;
+    Student* newTail = NULL;
+
+    for (int i = 0; i < 10; i++) {
+        if (buckets[i]) {
+            if (!newHead) {
+                newHead = buckets[i];
+                newTail = tails[i];
+            } else {
+                newTail->next = buckets[i];
+                newTail = tails[i];
+            }
+        }
+    }
+    head = newHead;
+}
+
+void radixSort(Student*& head) {
+    int maxScore = getMaxScore(head);
+    for (int exp = 1; maxScore / exp > 0; exp *= 10) {
+        countSort(head, exp);
+    }
+}
+void deleteNode(Student*& head, Student* target) {
+    if (!head || !target) return;
+
+    if (head == target) {
+        Student* temp = head;
+        head = head->next;
+        delete temp;
+        return;
+    }
+
+    Student* prev = head;
+    while (prev->next && prev->next != target)
+        prev = prev->next;
+
+    if (prev->next == target) {
+        prev->next = target->next;
+        delete target;
+    }
+}
+
+void printList(Student* head) {
+    while (head) {
+        cout << head->name << " " << head->score << "\n";
+        head = head->next;
+    }
+}
+
+int main() {
+    Student* head = NULL;
+    addNode(head, "Ayan", 90);
+    addNode(head, "Zameer", 60);
+    addNode(head, "Sara", 70);
+    addNode(head, "Sohail", 30);
+    addNode(head, "Ahmed", 20);
+    radixSort(head);
+    cout << "Sorted List:\n";
+    printList(head);
+    string delName;
+    int delScore;
+    cout << "\nEnter name and score to delete: ";
+    cin >> delName >> delScore;
+    int length = countNodes(head);
+    Student* foundNode = binarySearchLinkedList(head, delName, delScore, 0, length - 1);
+    if (foundNode) {
+        deleteNode(head, foundNode);
+        cout << "\nRecord deleted.\n";
+    } else {
+        cout << "\nRecord not found.\n";
+    }
+    cout << "\nUpdated List:\n";
+    printList(head);
+    return 0;
+}
+
+Displaying Untitled1.cpp.
