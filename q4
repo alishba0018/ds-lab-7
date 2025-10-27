@@ -1,0 +1,57 @@
+#include <iostream>
+using namespace std;
+
+class Product{
+    public:
+    string name;
+    string desc;
+    float price;
+    bool availability;
+    Product(string name,string desc,float price,bool availability){
+        this->name=name;
+        this->desc=desc;
+        this-> price=price;
+        this->availability=availability;
+    }
+     void display() {
+        cout << "Name: " << name << endl;
+        cout << "Description: " << desc << endl;
+        cout << "Price: " << price << endl;
+        cout << "Availability: " << (availability ? "In Stock" : "Out of Stock") << endl;
+    }
+};
+
+int partition(Product arr[], int low, int high) {
+    float pivot = arr[high].price;
+    int i = low - 1;
+    for (int j = low; j < high; j++) {
+        if (arr[j].price < pivot) {
+            i++;
+            swap(arr[i], arr[j]);
+        }
+    }
+    swap(arr[i + 1], arr[high]);
+    return (i + 1);
+}
+
+void quickSort(Product arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+int main() {
+    Product products[3]{
+    Product("Product 1","This is product 1.",10.99,true),
+    Product("Product 2","This is product 2.",5.99,false),
+    Product("Product 3","This is product 3.",2.99,true)
+    };
+    quickSort(products, 0, 2);
+    cout << "Products sorted by price (ascending order):\n";
+    for (int i = 0; i < 3; i++) {
+        products[i].display();
+    }
+    return 0;
+}
